@@ -1,0 +1,41 @@
+name: Grocery Delivery System CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Build and test Java project
+        shell: bash
+        run: |
+          if [ -f pom.xml ]; then
+            mvn -B test
+          elif [ -f gradlew ]; then
+            chmod +x gradlew
+            ./gradlew test
+          elif [ -f build.gradle ] || [ -f build.gradle.kts ]; then
+            gradle test
+          else
+            echo "No Maven or Gradle build file found."
+            exit 1
+          fi
+
+      - name: Build Docker image
+        if: success()
+        run: docker build -t grocery-delivery-system .
