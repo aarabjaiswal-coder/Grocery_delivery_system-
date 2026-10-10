@@ -2,7 +2,7 @@ FROM maven:3.9.9-eclipse-temurin-17 AS build
 WORKDIR /workspace
 COPY pom.xml .
 RUN mvn -B -q dependency:go-offline
-COPY src ./src
+COPY . .
 RUN mvn -B -q clean verify
 
 FROM eclipse-temurin:17-jre-jammy
